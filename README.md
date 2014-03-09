@@ -42,9 +42,9 @@ None yet!
 
 ## Legal
 
-Privateer Press does not endorse or in any way sponsor this project.
-Any the term "Warjack", and others used throughout this project are
-trademarks of Privateer Press.
+The Privateer Press does not endorse or in any way sponsor this project.
+The term "Warjack", and others used throughout this project are
+trademarks of the Privateer Press.
 
 ## License
 
