@@ -34,7 +34,7 @@ That said, there are some project goals
 
 ## Documentation
 There is a whole lot of writeup about the mechanics of Freki
-[over here in the docs](docs/index.org)
+[over here in the docs](doc/index.org)
 
 ## Usage
 
