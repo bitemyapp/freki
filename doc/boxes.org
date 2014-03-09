@@ -1,0 +1,37 @@
+* Boxes
+  The boxes representation is really just a wrapper around a ragged
+  array of booleans initialized to true. The "accessor" api isn't much
+  better than that.
+
+** Fundimental operations
+*** ->Boxes := λ (Int, ...) -> boxes
+    Builds a boxes array (with size information) from 
+*** count := λ boxes -> int
+   counts the number of "true" boxes
+   
+*** mark := λ boxes -> (int, int) -> boxes
+   sets a box "false"
+
+*** unmark := λ boxes -> (int, int) -> boxes
+   unmarks a box by setting it "true"
+
+*** apply-damage := λ boxes -> int -> int -> boxes
+   applies damage sequentially according to the rules
+
+** Note  
+   This representation may need to be a full blown type because
+   untimately it may need to be extended over Collossal damage
+   grids. The hitch here is that the application of damage is
+   nontrivial for colossal damage grids as it may involve wrapping
+   around on the grid.
+
+** TODO FIXME:
+   This boxes representation is misleading because it assumes that
+   boxes can be represented entirely and without loss of precision as
+   columns. However due to abilities like sniper which allow for the
+   manual selection of the target column and freki damage which allow
+   for the manual marking of a specific column this is not in fact the
+   case. It is quite possible and indeed legal to mark only one box on
+   one ssyste in a given column leaving the system damaged but the
+   rest of the column unmarked. This _must_ be supported behavior in
+   the fimal form of the boxes system.

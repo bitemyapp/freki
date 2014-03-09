@@ -1,0 +1,57 @@
+Freki TODO list
+#+STARTUP: content
+
+* Freki waypoint List [0/9]
+** Board [0/1]
+*** Basic board "point cloud" intersection implementation
+    I suspect that the structure of this system is going to be based
+    on linear intersections between expression defined functions. If a
+    region R is completely bounded by some set of edges E, then the
+    line L can _only_ pass through the region R if L intersects with
+    at least one edge \in E. Use Expresso to solve for the
+    intersection point(s).
+
+*** Working game board representation
+    - (place     [board model x y])
+    - (move-manh [board model dx dy])
+    - (move-vec  [board model theta d])
+
+*** TODO GUI board visualization
+**** TODO Be able to show a "grid" breakdown
+**** TODO Be able to draw the outer tangent lines
+**** TODO Be able to draw a rotated sprite
+     
+** LoS [0/3]
+*** TODO Working line of sight between models
+    The line of sight between two models needs to be computed first as
+    zone bounded by the outer tangent line between the two models in
+    question. The LoS base size heuristic then applies to models
+    within this chanel from A to B.
+    
+*** TODO Working line of sight between models with terrain and clouds
+    Really this comes down to finding some representation for terain
+    and coulds which reduces to base size or polygonal base area as a
+    point cloud. This'll be easy for rectangular terain and for cloud
+    effects, but for nonregular terain it's gonna be a real pain.
+
+** Movement [0/4]
+*** TODO State update for checked model movement
+*** TODO Model movement animation
+*** TODO Model movement with terrain effects
+*** TODO Model movement with animated speed
+    
+** Viz [0/3]
+*** TODO Movement profile visualization
+    - Be able to draw the movement circle as an underlay
+*** TODO Charge profile visualization
+    - Be able to draw the charge circle as an underlay
+*** TODO Shooting profile visualization
+    - Be able to draw different ranges as an underlay
+
+** AI [0/6]
+*** TODO Be able to do attack scheduling
+*** TODO Build on attack scheduling to do target assignment
+*** TODO Build on target assignment to restrict domain with threat radius
+*** TODO Build charge lane identification
+*** TODO Build shooting lane identification
+*** TODO Try to build a movement heuristic based on blocking charge & firing lanes when attacks are not in order

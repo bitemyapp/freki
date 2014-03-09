@@ -1,0 +1,76 @@
+* Project Freki
+
+** [[file:rules.org::*Rules][Rules]]
+
+** [[file:events.org::*Events][Events]]
+
+** [[file:players.org::*Players][Players]]
+
+** Data
+   - Use the WHAC data
+     - Better loader?
+     - Changes to the data format?
+     - Rules and effects need to be serializable. This may mean that
+       Freki winds up running a datalog system or something else
+       funky internally just to support a relatively sane rule
+       serialization format. I really don't want to roll a scripting
+       language for this.
+
+** Board
+*** Board location information
+    - Individual models need a full quad (x, y, z, θ) T_T
+*** Board API
+    - Distance
+    - Facing
+    - Arc(s)?
+    - Elevation delta
+    - Ray of vision
+    - Objects in ray (raytracing with piercing)
+    - Object height
+
+** [#C] Game rules
+   - Victory conditions
+     - Scenario
+     - Caster Kill
+     - Escort
+
+   - Movement constraints
+     - Killbox etc
+
+** [#C] Graphics
+   - Use the CES
+   - The board will be IRenderable, and will delegate. A lot.
+   - Solve the subproblems
+   - By-model sprites, orientations from board location data
+
+** [#B] Logging
+   Ideally every event in the Freki engine winds up getting
+   logged. Rule invocations, rule changes to data and soforth should
+   all get logged. Putting these in more than a sequential contex
+   would be nice but I don't know if it's gonna happen since logging
+   is hard and shit.
+
+   The other thing with the logs is that they need to be machine
+   readable. Given two sates, an AI can do naive scoring, but not a
+   whole lot more. If an evaluation context comes back with not just a
+   new state but a plan _outcome_, that would be awesome. Then an AI
+   can just look at the plan outcome and do the sort of outcome
+   analysis that makes Freki potentially interesting.
+
+   Structuring this log, and making it reasonably context driven is
+   gonna be a pain more likely than not.
+
+   Also clearing this log is going to be a very important function of
+   the engine. There is no need to maintain this log most of the
+   time, for instance AI excursions will certainly generate and more
+   importantly inspect the log(s). Consequently log emission is
+   important, however when the player acts logging is not so
+   important unless there is interest in a global replay system which
+   would actually be awesome.
+
+** Bucket list
+   - I need a very general algebraic structure for representing not
+     only the numeric sum of N dice, but also the distribution of N
+     dice. This distribution representation will probably have to have
+     a complement boolean distribution in order to get stuff like
+     cripple chance and soforth.

@@ -1,0 +1,166 @@
+* Events
+** Notes on Events
+*** Event Stack
+    An architectural issue which Freki is gonna have to deal with is
+    nested events and event triggering. Many abilities, such as
+    electroleaps, have attached rules triggering subsequent damage
+    effects. While the official warmahordes rules are unclear on this
+    point. For the sake of implementation, Freki will process
+    generated events with a FIFO queue where new events are added to
+    the tail of the queue. When the event queue is empty, the [[Players][Player]]
+    who's turn it is will be prompted for an event somehow.
+
+    This assumes a definition of `then` such that it operates by
+    manipulating the hook queue in the CES argument. The idea is that
+    then will unroll into a function which evaluates its expression and
+    then if successful adds its successor to the CES work queue
+    otherwise emitting some sort of failure log also in the CES.
+
+
+    One nice feature of the Warmachine rules is that the event stack is
+    in fact a strict stack so long as the order of events is
+    preserved. This order of event preservation demands a double think
+    with respect to what are colloquially called "attacks": that they
+    are really just the chain of two events. The first event is a hit
+    which if successful chains a damage event to the top of the stack.
+
+    So the execution stream of this snippet for the example
+    
+    <frozenfoxx> arrdem: Closest example I've got a hard ruling on is
+                 drag versus enliven. So Enliven says after a warjack
+                 takes damage, you get to make a full advance. Drag
+                 says after a successful attack, you get to drag. The
+                 official ruling I got was that the initial attack had
+                 its damage resolved, THEN Enliven went off, THEN drag
+                 went off
+	       
+    So for this example, lets say we just execute an attack. First we
+    resolve the hit rules, and try to get a hit. Having gotten the hit,
+    we don't add any effects to the queue, just the damage
+    operation. The damage operation then resolves. In resolving, first
+    the "apply-damage" chain and then the "on-damage" chain are added
+    to the queue. Then the "weapon-effects" chain is added to the list
+    and finally we do a bunch of cleanup work. The upshot of this is
+    that the worklist should be [apply-damage, on-damage,
+    weapon-effects], which under the rules presented above presents
+    exactly the ruling sequence in Foxx's quote above.
+
+    Note that this also deals nicely with the case of models with
+    features like sniper and anatomical accuracy which ensure some form
+    of damage, or give a choice as to how to deal damage. These models
+    then simply feature a different damage dealing operation.
+
+*** Event Logging
+    Events _need_ to be logging to the CES in one way or another. When
+    something "takes place" the CES needs to have a log structure
+    representing exactly what happened so that an AI or a human can go
+    back and discover (literally replay) exactly what happened
+    prefferably with terse forms of the per-step changes to the CES if
+    reasonable.
+
+    Another critical feature of such logging is that the logs need to
+    be almost directly if not literally directly representative of
+    the operation they perform. I don't demand that log entries be
+    IFns which can be directly applied to the appropriate arguments,
+    but that would be awesome. The idea is just that given a log it
+    should be trivial to replay its actions over a given CES.
+
+** Implemetation & standard events
+*** do-compute-def [0/1]
+    λ ces -> attacker -> victim -> (CES, int)
+    
+    Does all the leg work to compute the DEF of the victim with respect
+    to the attacker. Note that as some models gain def wrt the attacker
+    against ranged attacks or against melee attacks and soforth this
+    step is required. 
+    
+**** TODO [#A] Stealth
+     Stealth can be implemented nicely here by just yielding an
+     infinite def, baring the existance of a Guided ranged weapon,
+     which would ignore the infinite def and hit. Issues of ∞ > ∞
+     arrise here which makes for sad pandas.
+      
+*** do-stat-check [0/2]
+    λ ces -> src -> type -> threshold -> (CES, bool)
+
+    Does all the leg work to compute a stat check and yield its
+    outcome.
+      
+**** TODO [#A] Stat check type
+     May need additional data to represent the stat check _type_ but
+     that's more of a specialization detail which is easy to add as a
+     parameter.
+      
+**** TODO [#A] Target rules
+     An issue is how this interacts with effects that make the source
+     _loose_ a die. Theoretically in this structure a target could
+     have an "attacking models loose a die" rule and it would be
+     ignored."
+
+*** do-hit [/]
+    λ ces -> src -> weapon -> dst -> (ces, bool)
+      
+    Does all the leg work to figure out whether the target gets hit or
+    not. Yields the changed CES and a boolean reflecting hit status."
+    
+    (then args
+      defence :- ([[do-compute-def]])
+      success :- ([[do-stat-check]] defence)))
+          
+*** do-compute-arm [/]
+    λ ces -> attacker -> victim -> (CES, int)
+      
+    Does all the leg work to figure out the effective ARM of the
+    target with respect to the attacker. Returns a pair (CES,
+    damage).
+
+*** do-damage [0/1]
+    λ ces -> src -> weapon -> dst -> (ces, int)
+      
+    Does all the dice rollin and crap to deal damage, deals the damage
+    in the CES, and then returns the integer number of damage dealt.
+      
+    (then args
+      args, damage :- (do-roll-damage) ;; this needs to yield a damage value
+      (do-deal-damage damage)          ;; slaps the target around a bit
+      (when (> damage 0)
+        (then args
+        (do-on-damage)))))
+
+**** TODO [#A] Damage column
+     As damage is really another stat check to determine the amount of
+     damage to be dealt, that's easy to do. However, it isn't clear
+     where the choice of column or arc comes in when attacking
+     Warjacks, Warbeasts let alone Huge base models. That column
+     choice roll and arc choice need to be reflected in here one way
+     or another."
+      
+*** attack [0/2]
+    λ ces -> src -> weapon -> dst -> (ces, bool)
+      
+    Attempts to be a one stop shop for achieving the effect of A
+    slaping B around potentially quite a bit.
+      
+    ;; try to hit the target
+    (let [[args, hit-success] (apply do-hit args)]
+      (when hit-success
+        (let [args (apply do-on-hit args)
+          ;; chain forwards into damage
+          [args, damage] (apply do-damage args)]
+          (when (> damage 0)
+            (do-on-damge args))))))
+
+**** TODO [#A] Activation termination
+     Attack should indicate whether or not the attacker must end its
+     turn after executing the sequence of events. The rule
+     "cumbersome" comes to mind here. Generally all ability level
+     operations need to indicate whether they are activation
+     terminating or not.
+
+**** TODO [#A] Ability reuse
+     Attacks should indicate whether the same weapon can be
+     reused. For instance for non ROF 1 ranged weapons the answer
+     should clearly be that yes they can at a focus cost, as for melee
+     weapons. Perhapse there is some saner way to represent bought
+     attacks based on "normal" or "initial" attacks being once per
+     turn cost 0 abilities where bought attacks are cost 1 abilities.

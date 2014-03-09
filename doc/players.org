@@ -1,0 +1,88 @@
+* Players
+
+** AI Players
+   The idea with Players is that ultimately I want to have a single
+   "shared" interface so that AI players and Human players look and
+   feel the same to the Freki engine.
+
+   An unfortunate side effect of this approach (or perhapse a
+   fortunate one depending on how you choose to look at it) is that
+   the player's [[Event prompts][event prompt]] cannot be tightly coupled to their model
+   instances. An AI player must be alble to literally construct a new
+   player representing a clone of itself or some other strategy, and
+   trivially perform all the CES updates to convince everything
+   invoved that the other guy is the human player in order to do
+   multiturn simulation.
+
+** Event prompts
+   The really hard thing with this is that since so many rules involve
+   an ultimate choice, such as spending focus points for boosts. Due
+   to the fact that technically these events occur deep within some
+   other event stack, this demands that both the player and the AI
+   recieve some form of prompt indicating the presence of a choice as
+   it appears and requesting a decision where the decision cannot be
+   logically eliminated (all focus used etc).
+
+   This means that really the CES needs to contain some sort of
+   common callback which can be invoked as 
+
+   #+BEGIN_SRC clojure
+     ((get-callback (owner #<Model>)) choices)
+   #+END_SRC
+
+   or something roughly equivalent which takes N choices and yields a
+   _single_ choice. There may be some form of choice ID that goes
+   along with this, as well as yielding the current CES state so that
+   other choices can be evaluated on the basis of the current
+   CES. However this all seems like it's gonna get really messy
+   because ultimately it is breaking right out of the structure of the
+   event stack.
+
+*** [#A] Point field motion
+    This sort of prompt really breaks down for an algebraically
+    described point field when talking about model movements. The
+    cardinality of the model movement location set is far larger than
+    that which I think I want to enumerate (even lazily!) given that
+    it constitutes an only somewhat constrained quad...
+
+*** [#A] Partial movements
+    This sort of prompt also assumes that an action can be totally
+    executed in a single decision. This prohibits stuff like multipart
+    movements which are critical in many situations.
+
+*** optimize-attack [0/5]
+    λ ces -> src -> dst -> (ces, [plan])
+      
+    Produces a number of plans based on the given source model for how
+    to beat the tar out of dst most effectually. The algorithm is
+    relatively simple: enumerate all weapons, then recursively
+    enumerate all plans which constitute legitimate action sequences,
+    then sorts the plans by projected damage dealt.
+      
+**** TODO [#A] Executable logs
+     Each plan "step" as computed should be almost directly
+     executable. So the plan step "smack it with your dick boosting
+     damage" should be represented such that an AI selecting one plan
+     from the plans can easily destructure and use it.
+      
+**** TODO [#A] Whole plan odds of success
+     Each plan needs to incorperate some sort of cumulative
+     probability of success, in addition to a per-step probabilty
+     evaluation. That is, if I cast a knockdown or mage sight spell
+     with 50% probability of success, but then can blast away
+     amazingly, the plan's success is still 50% overall.
+
+**** TODO [#A] Whole plan damage distribution
+     Plans probability should reflect probable damage done.
+
+**** TODO [#A] Per action side effect distribution
+     Plans should reflect probability of other events, such as systems
+     becomming crippled, of getting a knockdown, of dealing critical
+     bonus damage and soforth. The most important piece of this kind
+     of information is clearly going to be kill odds.
+
+**** TODO [#A] Worklist
+     Managing this is going to involve working with a mutable worklist
+     so that all choices can be analyzed. This means that it depends
+     upon firming up the "player" choice mechanism such that this is
+     possible.

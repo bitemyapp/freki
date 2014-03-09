@@ -1,0 +1,39 @@
+* Rules
+** Rule Resolution
+   - Global structure representing "Rules In Play"
+   - Structure representing per model rules
+   - Structure representing ability rules
+
+*** Rule Resolution Process:
+   1. Look up the global scope rules
+   2. Look up the per model rules for the source model
+   3. Look up the per model rules for the target model, if any
+   4. Look up the ability/effect rules, if any
+
+   The thing that's funky about rules is that they are ultimately
+   quads (id:UUDI, pred:λ, hook:λ, overrides:#{}<UUID>).
+
+   The strategy for computing the exact ₛet_ of rules in play is to
+   look up the global active rules, the source model runes, the target
+   model runes and the ability/effect rules. We then compute a subset
+   of these rules by filtering on the result of each rule's pred
+   function. From this filtered set referred to as rules', we compute
+   a deletion set: being the set of rules which are overriden by rules
+   in the rules' set. This is trivially
+
+   #+BEGIN_SRC clojure
+     (->> rulesp
+          (map :overrides) 
+          (reduce set/union))
+   #+END_SRC
+
+   The final set of rules to be considered in the resolution of the
+   current effect is then (rules' - overrides). While this is correct,
+   it also discards information in that it throws out the "overrides"
+   relation between rules which an AI player could leverage and which
+   may be useful for debugging purposes.
+
+   Note that this is done for resolving _all rules_. So when Gun Mage
+   Adepts make a modified runeshot that ignores the "LOS" rule, it
+   damn well will ignore the LOS rule in that the LOS rule will be
+   deleted from consideration while the RNG rule will be maintained.
