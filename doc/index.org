@@ -6,6 +6,40 @@
 
 ** [[file:players.org::*Players][Players]]
 
+** Distributions
+   I need some sort of representation for the range of numbers
+   produced by a die, both so that I can do explicit "concrete" dice
+   roll evaluation for "real" play and so that the AI can do
+   distribution based "probabalistic" evaluation in simulated
+   play. The idea is that I want to be able to write
+   
+   #+BEGIN_SRC haskell
+     > 2 * d6 + 2
+     4 : #
+     5 : ##
+     6 : ###
+     7 : ####
+     8 : #####
+     9 : ######
+     10: #####
+     12: ####
+     13: ###
+     14: ##
+     15: #
+   #+END_SRC
+
+   http://chplib.wordpress.com/2010/08/13/nice-dice-in-haskell/ is
+   one writeup on a dice distribution system, but it doesn't seem to
+   feature the constant scaling which I demand.
+
+   Also, I need a way to be able to take a numeric distribution and
+   build a boolean distribution. Eg. 
+
+     2 * d6 + 3 > 5 => [(false, 3), (true, 33)]
+
+   This sort of boolean split distribution is going to be critical to
+   AI computation of chained event probabilities.
+
 ** Data
    - Use the WHAC data
      - Better loader?
