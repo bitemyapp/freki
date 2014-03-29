@@ -15,12 +15,12 @@ to Vassal or to Warmachine Tactics.
 That said, there are some project goals
 
 ### Near Term
-     - Datafile structure and loading [25% designed, 0% implemented]
-     - Model position/movement AI     [10% designed, 0% implemented]
-     - Target selection AI            [90% designed, 0% implemented]
-     - Effect simulation              [50% designed, 0% implemented]
-     - Stat check simulation          [70% designed, 0% implemented]
-     - Rule specification language    [0% designed, 0% implemented]
+     - Datafile structure and loading [ 25% designed,   0% implemented]
+     - Model position/movement AI     [ 10% designed,   0% implemented]
+     - Target selection AI            [ 90% designed,   0% implemented]
+     - Effect simulation              [ 50% designed,   0% implemented]
+     - Stat check simulation          [ 70% designed,   0% implemented]
+     - Rule specification language    [  0% designed,   0% implemented]
 
 ### Long term
  - Strategy/tendancy tuning
@@ -42,9 +42,9 @@ None yet!
 
 ## Legal
 
-Privateer Press does not endorse or in any way sponsor this project.
-Any the term "Warjack", and others used throughout this project are
-trademarks of Privateer Press.
+The Privateer Press does not endorse or in any way sponsor this project.
+The term "Warjack", and others used throughout this project are
+trademarks of the Privateer Press.
 
 ## License
 
