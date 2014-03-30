@@ -8,8 +8,8 @@ data Model = Model { stats          :: ModelStats
                    , fieldAllowance :: FieldAllowance
                    , baseSize       :: BaseSize
                    , armyCost       :: ArmyCost
-                   , feat           :: Feat String
-                   , actions        :: [Action String] } deriving (Show)
+                   , feat           :: Feat
+                   , actions        :: [Action] } deriving (Show)
 
 data ModelStats = ModelStats { speed        :: Rational
                              , strength     :: Integer
@@ -21,9 +21,22 @@ data ModelStats = ModelStats { speed        :: Rational
 
 -- Action/Movement "attempts" or possibilities
 
-data Feat a = String a deriving (Show)
+data Feat = Feat String deriving (Show)
 
-data Action a = RangedAttack | MeleeAttack | Feat a | Ability | Spell | Standup deriving (Show)
+data Spell = Spell { name        :: String
+                   , description :: String
+                   , cost        :: SpellCost
+                   , range       :: SpellRange
+                   , aoe         :: Maybe AOE
+                   , power       :: Maybe Integer
+                   , upkeep      :: Bool
+                   , offense     :: Bool } deriving (Show)
+
+data SpellCost = SpellCost Int | SpellCostStar deriving (Show)
+data AOE = AoeControl | AOE Integer deriving (Show)
+data SpellRange = SpellRangeSelf | SpellRangeControl | Range Integer deriving (Show)
+
+data Action = RangedAttack | MeleeAttack | FeatAction Feat | Ability | SpellAction Spell | Standup deriving (Show)
 
 data Movement = Movement { direction :: Integer, radius :: Radians Rational } deriving (Show)
 
