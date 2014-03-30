@@ -47,3 +47,15 @@ data FieldAllowance = C | U | FA Integer deriving (Show)
 data BaseSize = SmallBase | MediumBase | LargeBase | HugeBase deriving (Show)
 
 data ArmyCost = PointCost Integer | WarjackPoints Integer deriving (Show)
+
+-- Events
+
+data GameState = GameState Int deriving (Show)
+
+data Event = Event String deriving (Show)
+
+resolveEvent :: (GameState, [Event]) -> (GameState, [Event])
+resolveEvent ((GameState 0), []) = ((GameState 0), [])
+resolveEvent ((GameState n), []) = ((GameState n), [])
+resolveEvent ((GameState 0), ((Event name) : xs)) = ((GameState 0), xs)
+resolveEvent ((GameState n), ((Event name) : xs)) = (GameState (n-1), xs ++ (replicate n $ Event name))
