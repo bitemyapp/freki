@@ -38,7 +38,8 @@ data SpellRange = SpellRangeSelf | SpellRangeControl | Range Integer deriving (S
 
 data Action = RangedAttack | MeleeAttack | FeatAction Feat | Ability | SpellAction Spell | Standup deriving (Show)
 
-data Movement = Movement { direction :: Integer, radius :: Radians Rational } deriving (Show)
+data Movement = Movement { direction :: Integer
+                         , radius :: Radians Rational } deriving (Show)
 
 data DamageModel = HumanHealth | Armor | ShieldedArmor deriving (Show)
 
@@ -57,5 +58,5 @@ data Event = Event String deriving (Show)
 resolveEvent :: (GameState, [Event]) -> (GameState, [Event])
 resolveEvent ((GameState 0), []) = ((GameState 0), [])
 resolveEvent ((GameState n), []) = ((GameState n), [])
-resolveEvent ((GameState 0), ((Event name) : xs)) = ((GameState 0), xs)
-resolveEvent ((GameState n), ((Event name) : xs)) = (GameState (n-1), xs ++ (replicate n $ Event name))
+resolveEvent ((GameState 0), ((Event name) : xs)) = resolveEvent ((GameState 0), xs)
+resolveEvent ((GameState n), ((Event name) : xs)) = resolveEvent (GameState (n-1), xs ++ (replicate n $ Event name))
